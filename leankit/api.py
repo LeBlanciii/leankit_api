@@ -14,7 +14,7 @@ leankit_session = requests.Session()
 leankit_session.auth = (os.environ['LEANKITUSERNAME'], os.environ['LEANKITPASSWORD'])
 leankit_session.headers = {"Content-Type": "application/json"}
 
-logging.basicConfig(format='{}:%(levelname)s: %(message)s'.format(datetime.datetime.now()), level=logging.INFO)
+logging.basicConfig(format='{}:%(levelname)s: %(message)s'.format(datetime.datetime.now()), level=logging.WARN)
 
 
 def retry(tries=13, delay=1, backoff=2, logger=None):
@@ -42,21 +42,21 @@ def retry(tries=13, delay=1, backoff=2, logger=None):
     return deco_retry
 
 
-@retry()
+@retry(logger=logging)
 def move_card(board_id, card, to_lane):
     logging.info("move_card: {} lane: {}".format(card["id"], to_lane))
     leankit_session.post("{}/kanban/api/board/{}/MoveCard/{}/lane/{}/position/1".format(
         LEANKIT_URL, board_id, card['id'], to_lane)).raise_for_status()
 
 
-@retry()
+@retry(logger=logging)
 def block_card(card, reason):
     logging.info("block_card: {} reason: {}".format(card["id"], reason))
     payload = json.dumps({"CardId": card["id"], "IsBlocked": True, "BlockReason": reason or "Not Specified"})
     leankit_session.post("{}/kanban/api/card/update".format(LEANKIT_URL), data=payload).raise_for_status()
 
 
-@retry()
+@retry(logger=logging)
 def add_card(board, lane, title, header="", description="", type_id=None, size=0, url="", tags=[],
              external_system_name=""):
     params = {"boardId": str(board),
@@ -79,17 +79,17 @@ def add_card(board, lane, title, header="", description="", type_id=None, size=0
     response.raise_for_status()
 
 
-@retry()
+@retry(logger=logging)
 def get_card(card_id):
     return leankit_session.get("{}/io/card/{}".format(LEANKIT_URL, card_id)).json()
 
 
-@retry()
+@retry(logger=logging)
 def get_children(card_id):
     return leankit_session.get("{}/io/card/{}/connection/children".format(LEANKIT_URL, card_id)).json()["cards"]
 
 
-@retry()
+@retry(logger=logging)
 def get_cards(board=None, type=None, lane_class_types=None, lanes=None,
               since=None, deleted=False, only=None, search=None, limit=5000, offset=0):
     params = {}
@@ -103,27 +103,26 @@ def get_cards(board=None, type=None, lane_class_types=None, lanes=None,
     logging.info("get_cards: params: {}".format(params))
     return leankit_session.get("{}/io/card/".format(LEANKIT_URL), params=params).json()['cards']
 
-
-@retry()
+@retry(logger=logging)
 def delete_card(card):
     logging.warning("delete card {}".format(card["id"]))
     logging.warning("Uncomment to complete".format(card["id"]))
     leankit_session.delete("{}/io/card/{}".format(LEANKIT_URL, card['id']))
 
 
-@retry()
+@retry(logger=logging)
 def get_board(board_id):
     url = "{}/io/board/{}".format(LEANKIT_URL, board_id)
     return leankit_session.get(url).json()
 
 
-@retry()
+@retry(logger=logging)
 def get_task_board(board_id, card_id):
     url = "{}/kanban/api/v1/board/{}/card/{}/taskboard".format(LEANKIT_URL, board_id, card_id)
     return leankit_session.get(url).json()['ReplyData'][0]
 
 
-@retry()
+@retry(logger=logging)
 def move_task(board_id, card_id, task_id, lane_id):
     url = "{}/kanban/api/v1/board/{}/move/card/{}/tasks/{}/lane/{}".format(
         LEANKIT_URL, board_id, card_id, task_id, lane_id)
@@ -143,7 +142,7 @@ def reset_card_tasks(board_id, card_id):
         move_task(board_id, card_id, t['Id'], backlog_lane_id)
 
 
-@retry()
+@retry(logger=logging)
 def update_header(card_id, title):
     logging.info("update header: {}  title: {}".format(card_id, title))
     r = leankit_session.patch("{}/io/card/{}".format(LEANKIT_URL, card_id),
@@ -151,7 +150,7 @@ def update_header(card_id, title):
     r.raise_for_status()
 
 
-@retry()
+@retry(logger=logging)
 def update_custom_field(card_id, path, value):
     logging.info("update custom field:\nid:{}\npath:{}\nvalue:{}".format(card_id, path, value))
     r = leankit_session.patch("{}/io/card/{}".format(LEANKIT_URL, card_id),
@@ -159,7 +158,7 @@ def update_custom_field(card_id, path, value):
     r.raise_for_status()
 
 
-@retry()
+@retry(logger=logging)
 def update_planned_finish(card_id, date):
     """date: yyyy-mm-dd """
     logging.info("update planned finish: {}  date: {}".format(card_id, date))
@@ -168,7 +167,7 @@ def update_planned_finish(card_id, date):
     r.raise_for_status()
 
 
-@retry()
+@retry(logger=logging)
 def change_card_type(card_id, card_type):
     """
     :param card_id: Int
@@ -198,7 +197,7 @@ def is_card_completed_recently(card, days_ago=30):
     return (datetime.datetime.today() - date_completed).days < days_ago
 
 
-@retry()
+@retry(logger=logging)
 def remove_planned_finish(card_id):
     logging.info("remove planned finish: {}".format(card_id))
     r = leankit_session.patch("{}/io/card/{}".format(LEANKIT_URL, card_id),
@@ -206,13 +205,13 @@ def remove_planned_finish(card_id):
     r.raise_for_status()
 
 
-@retry()
+@retry(logger=logging)
 def card_history(board_id, card_id):
     return leankit_session.get("{}/kanban/api/card/history/{}/{}".format(
         LEANKIT_URL, board_id, card_id)).json()["ReplyData"][0]
 
 
-@retry()
+@retry(logger=logging)
 def lane_history(board_id, limit=1000, offset=0):
     return leankit_session.get(
         '{}/io/reporting/export/cardpositions.json?boardId={}&limit={}&offset={}'.format(LEANKIT_URL, board_id, limit,
