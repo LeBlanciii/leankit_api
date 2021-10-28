@@ -1,0 +1,20 @@
+import setuptools
+
+with open("README.md", "r", encoding="utf-8") as fh:
+    long_description = fh.read()
+
+setuptools.setup(
+    name='leankit',
+    version='0.0.1',
+    author='John LeBlanc',
+    author_email='johnleblanciii@gmail.com',
+    description='Leankit Endpoints',
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    url='https://github.com/LeBlanciii/leankit',
+    project_urls={
+    },
+    license='MIT',
+    packages=['api'],
+    install_requires=['requests', 'python-dateutil'],
+)
