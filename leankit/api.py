@@ -14,7 +14,7 @@ leankit_session = requests.Session()
 leankit_session.auth = (os.environ['LEANKITUSERNAME'], os.environ['LEANKITPASSWORD'])
 leankit_session.headers = {"Content-Type": "application/json"}
 
-logging.basicConfig(format='{}:%(levelname)s: %(message)s'.format(datetime.datetime.now()), level=logging.ERROR)
+logging.basicConfig(format='{}:%(levelname)s: %(message)s'.format(datetime.datetime.now()), level=logging.INFO)
 
 
 def retry(tries=13, delay=1, backoff=2, logger=None):
