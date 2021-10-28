@@ -100,6 +100,7 @@ def get_cards(board=None, type=None, lane_class_types=None, lanes=None,
             params[k] = ','.join(v)
             continue
         params[k] = v
+    logging.info("get_cards: params: {}".format(params))
     return leankit_session.get("{}/io/card/".format(LEANKIT_URL), params=params).json()['cards']
 
 
