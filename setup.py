@@ -15,6 +15,6 @@ setuptools.setup(
     project_urls={
     },
     license='MIT',
-    packages=['api'],
+    packages=['leankit'],
     install_requires=['requests', 'python-dateutil'],
 )
