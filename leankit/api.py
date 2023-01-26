@@ -42,11 +42,10 @@ def retry(tries=13, delay=1, backoff=2, logger=None):
 
 
 @retry(logger=logging)
-def move_card(board_id, card, to_lane, index=1):
+def move_card(board_id, card, to_lane, index="1"):
     logging.info("move_card: {} lane: {}".format(card["id"], to_lane))
     leankit_session.post(
-        f"{LEANKIT_URL}/kanban/api/board/{board_id}/MoveCard/{card['id']}/lane/{to_lane}/position/"
-        f"{index}").raise_for_status()
+        f"{LEANKIT_URL}/kanban/api/board/{board_id}/MoveCard/{card['id']}/lane/{to_lane}/position/{index}").raise_for_status()
 
 
 @retry(logger=logging)
