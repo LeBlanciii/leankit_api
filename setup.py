@@ -11,7 +11,7 @@ setuptools.setup(
     description='Leankit Endpoints',
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url='https://github.com/LeBlanciii/leankit',
+    url='https://github.com/LeBlanciii/leankit_api',
     project_urls={
     },
     license='MIT',
