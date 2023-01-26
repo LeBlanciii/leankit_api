@@ -2,11 +2,10 @@ import datetime
 import json
 import logging
 import os
-import time
-from functools import wraps
-
 import requests
+import time
 from dateutil import parser as date_parser
+from functools import wraps
 
 LEANKIT_URL = os.environ['LEANKIT_URL']
 
@@ -43,10 +42,11 @@ def retry(tries=13, delay=1, backoff=2, logger=None):
 
 
 @retry(logger=logging)
-def move_card(board_id, card, to_lane):
+def move_card(board_id, card, to_lane, index=1):
     logging.info("move_card: {} lane: {}".format(card["id"], to_lane))
-    leankit_session.post("{}/kanban/api/board/{}/MoveCard/{}/lane/{}/position/1".format(
-        LEANKIT_URL, board_id, card['id'], to_lane)).raise_for_status()
+    leankit_session.post(
+        f"{LEANKIT_URL}/kanban/api/board/{board_id}/MoveCard/{card['id']}/lane/{to_lane}/position/"
+        f"{index}").raise_for_status()
 
 
 @retry(logger=logging)
@@ -102,6 +102,7 @@ def get_cards(board=None, type=None, lane_class_types=None, lanes=None,
         params[k] = v
     logging.info("get_cards: params: {}".format(params))
     return leankit_session.get("{}/io/card/".format(LEANKIT_URL), params=params).json()['cards']
+
 
 @retry(logger=logging)
 def delete_card(card):
